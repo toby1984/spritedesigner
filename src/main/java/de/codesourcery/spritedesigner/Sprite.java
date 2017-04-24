@@ -128,7 +128,9 @@ public class Sprite implements Serializable
 
     public byte[] getDataRows(Flip flip) 
     {
-        assertSize();
+        if ( ( getWidth() % 8 ) != 0 ) {
+            throw new IllegalStateException("Glyph width needs to be a multiple of 8");
+        }
         int writePtr = 0;
         final byte[] result = new byte[ sizeInBits() / 8 ];
         for (int y = 0 ; y < getHeight(); y++) 

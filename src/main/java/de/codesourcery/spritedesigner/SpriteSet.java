@@ -126,6 +126,7 @@ public class SpriteSet implements Serializable
             final Sprite sprite = it.next();
             writer.appendHexString( mapper.apply(sprite) );
             writer.append(" ; '").append( (char) sprite.index() ).append("'");
+            writer.maybeAppendNewline();
         }
         return writer.toString();
     }
@@ -231,6 +232,7 @@ public class SpriteSet implements Serializable
             if ( printLinefeed ) 
             {
                 appendNewline();
+                currentByteCount = 0;
                 printLinefeed = false;
             }
             if ( currentByteCount != 0 ) 
@@ -250,6 +252,11 @@ public class SpriteSet implements Serializable
             }
             return this;
         }
+        
+        public HexWriter maybeAppendNewline() {
+            printLinefeed = true;
+            return this;
+        }        
         
         public HexWriter appendNewline() {
             result.append( "\n" );

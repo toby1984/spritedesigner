@@ -62,12 +62,12 @@ public class Main extends JFrame
     {
         super("SpriteDesigner");
 
-        final boolean doImport = true; 
+        final boolean doImport = false; 
         if ( doImport ) {
             spriteSet = new Importer().load();
         } else {
             spriteSet = new SpriteSet();
-            spriteSet.add( new Sprite(16,16) );
+            spriteSet.add( new Sprite(24,21) );
         }
 
         previewPanel = new PreviewPanel(spriteSet);
