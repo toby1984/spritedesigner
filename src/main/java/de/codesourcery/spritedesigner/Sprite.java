@@ -2,15 +2,17 @@ package de.codesourcery.spritedesigner;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.io.Serializable;
+import java.util.Iterator;
 
 public class Sprite implements Serializable
 {
     public static final long serialVersionUID = 47L;
 
-    public static enum Flip 
+    public enum Flip
     {
         NONE("not flipped"),
         FLIP_X("flipped X") 
@@ -37,7 +39,7 @@ public class Sprite implements Serializable
 
         private String name;
         
-        private Flip(String name) {
+        Flip(String name) {
             this.name= name;
         }
 
@@ -75,6 +77,113 @@ public class Sprite implements Serializable
     
     public int index() {
         return index;
+    }
+
+    /**
+     * Rotate counter clock-wise by 90 degrees,
+     */
+    public void rotateCCW() {
+
+        final boolean[][] copy = newArray( getHeight(), getWidth() );
+        final Iterator<Point> it1 = regularIterator();
+        final Iterator<Point> it2 = ccwIterator();
+        while ( it1.hasNext() && it2.hasNext() ) {
+            final Point p1 = it1.next();
+            final Point p2 = it2.next();
+            copy[p2.x][p2.y] = data[p1.x][p1.y];
+        }
+        this.data = copy;
+    }
+
+    public void rotateCW() {
+
+        final boolean[][] copy = newArray( getHeight(), getWidth() );
+        final Iterator<Point> it1 = regularIterator();
+        final Iterator<Point> it2 = cwIterator();
+        while ( it1.hasNext() && it2.hasNext() ) {
+            final Point p1 = it1.next();
+            final Point p2 = it2.next();
+            copy[p2.x][p2.y] = data[p1.x][p1.y];
+        }
+        this.data = copy;
+    }
+
+    private Iterator<Point> regularIterator() {
+        return new Iterator<>()
+        {
+            private int x,y;
+
+            @Override
+            public boolean hasNext()
+            {
+                return x < getWidth() && y < getHeight();
+            }
+
+            @Override
+            public Point next()
+            {
+                final Point p = new Point( x, y );
+                x++;
+                if ( x >= getWidth() )
+                {
+                    y++;
+                    x = 0;
+                }
+                return p;
+            }
+        };
+    }
+
+    private Iterator<Point> cwIterator() {
+        return new Iterator<>()
+        {
+            private int x=getWidth()-1,y;
+
+            @Override
+            public boolean hasNext()
+            {
+                return x >= 0 && y >= 0;
+            }
+
+            @Override
+            public Point next()
+            {
+                final Point p = new Point( x, y );
+                y++;
+                if ( y >= getHeight() )
+                {
+                    y=0;
+                    x--;
+                }
+                return p;
+            }
+        };
+    }
+
+    private Iterator<Point> ccwIterator() {
+        return new Iterator<>()
+        {
+            private int x,y=getHeight()-1;
+
+            @Override
+            public boolean hasNext()
+            {
+                return x < getWidth() && y >= 0;
+            }
+
+            @Override
+            public Point next()
+            {
+                final Point p = new Point( x, y );
+                y--;
+                if ( y < 0 )
+                {
+                    y=getHeight()-1;
+                    x++;
+                }
+                return p;
+            }
+        };
     }
 
     public void clear() {

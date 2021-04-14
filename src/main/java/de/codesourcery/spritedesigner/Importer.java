@@ -6,7 +6,7 @@ import java.nio.file.Files;
 
 public class Importer {
 
-    public static final File file = new File("/home/tgierke/neon_workspace/j6502/src/main/resources/roms/character.rom");
+    public static final File file = new File("/home/tobi/intellij_workspace/spritedesigner/character.rom");
     
     public SpriteSet load() {
         

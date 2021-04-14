@@ -4,11 +4,7 @@ import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -33,7 +29,7 @@ public class SpriteSet implements Serializable
     {
         this.sprites.remove(g);
     }
-    
+
     public List<Sprite> getSprites() {
         return sprites;
     }
@@ -47,7 +43,36 @@ public class SpriteSet implements Serializable
     }
 
     public int indexOf(Sprite sprite) {
-        return sprites.indexOf( sprite );
+        final int idx = sprites.indexOf( sprite );
+        if ( idx == -1 ) {
+            throw new NoSuchElementException();
+        }
+        return idx;
+    }
+
+    /**
+     * Delete all sprites after a certain index.
+     * @param start index of first sprite to delete, inclusive
+     */
+    public void deleteToEnd(int start)
+    {
+        deleteRange(start, sprites.size()-1 );
+    }
+
+    /**
+     * Delete range.
+     * @param start start index, inclusive
+     * @param end end index, inclusive
+     */
+    public void deleteRange(int start, int end) {
+        if ( end < start || start < 0 || end < 0 )
+        {
+            throw new IllegalArgumentException();
+        }
+        for ( int count = (end-start+1) ; count > 0 ; count--)
+        {
+            sprites.remove( start );
+        }
     }
     
     public void moveBackwards(Sprite g) {
@@ -120,12 +145,18 @@ public class SpriteSet implements Serializable
     private String getAsAssembly(String prefix,Function<Sprite,byte[]> mapper) 
     {
         final List<Sprite> filtered = sprites.stream().filter( Sprite::hasIndex).collect( Collectors.toList() );
-        final HexWriter writer = new HexWriter(16,prefix+".db "); 
-        for ( Iterator<Sprite> it = filtered.iterator() ; it.hasNext() ; ) 
+        final HexWriter writer = new HexWriter(16,prefix+".db ");
+        for ( final Sprite sprite : filtered )
         {
-            final Sprite sprite = it.next();
-            writer.appendHexString( mapper.apply(sprite) );
-            writer.append(" ; '").append( (char) sprite.index() ).append("'");
+            writer.appendHexString( mapper.apply( sprite ) );
+            if ( sprite.index() >= 32 )
+            {
+                writer.append( " ; '" ).append( (char) sprite.index() ).append( "'" );
+            }
+            else
+            {
+                writer.append( " ; not printable" );
+            }
             writer.maybeAppendNewline();
         }
         return writer.toString();
